@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tensorflow-models/coco-ssd": "^2.2.3",
+    "@tensorflow/tfjs": "^4.22.0",
     "leaflet": "^1.9.4",
     "lib-flexible": "^0.3.2",
     "lucide-react": "^1.8.0",
