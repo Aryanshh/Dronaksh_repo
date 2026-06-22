@@ -4,20 +4,34 @@ import { BarChart, Bar, ResponsiveContainer, Cell } from 'recharts';
 import * as tf from '@tensorflow/tfjs';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import { useDrones } from '../context/DroneContext';
+import { NeumorphicButton } from './NeumorphicButton';
+import { NeumorphicProgressBar } from './NeumorphicProgressBar';
 
-const DetectionMetric = ({ label, value, color, icon: Icon }) => (
-  <div className="glass-panel" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <Icon size={18} color={color} />
-      <span style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)' }}>LIVE ANALYSIS</span>
+const DetectionMetric = ({ label, value, color, icon: Icon }) => {
+  const valPercent = typeof value === 'string' && value.endsWith('%') ? parseInt(value) : (parseInt(value) || 0);
+
+  return (
+    <div className="nm-flat" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ color: color, display: 'flex', alignItems: 'center' }}>
+          <Icon size={18} />
+        </div>
+        <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>LIVE ANALYTICS</span>
+      </div>
+      <div>
+        <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>{label}</div>
+        <div style={{ fontSize: '22px', fontWeight: 700, color: color, fontFamily: "'General Sans', sans-serif", marginTop: '2px' }}>{value}</div>
+      </div>
+      <NeumorphicProgressBar 
+        value={valPercent} 
+        max={100} 
+        colorStart={color} 
+        colorEnd={color} 
+        glow={valPercent > 40}
+      />
     </div>
-    <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>{label}</div>
-    <div style={{ fontSize: '1.5rem', fontWeight: 700, color: color }}>{value}</div>
-    <div style={{ width: '100%', height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
-      <div style={{ width: typeof value === 'string' && value.endsWith('%') ? value : `${(parseInt(value) || 0)}%`, height: '100%', background: color, transition: 'width 0.5s ease-out' }} />
-    </div>
-  </div>
-);
+  );
+};
 
 export function AIDetection() {
   const { drones } = useDrones();
@@ -81,15 +95,11 @@ export function AIDetection() {
 
             // Compute metrics from predictions
             const persons = filtered.filter(p => p.class === 'person');
-            const vehicles = filtered.filter(p => ['car', 'truck', 'bus', 'motorcycle', 'bicycle'].includes(p.class));
-            
-            // For demo convenience, flag scissors, knives, or cell phones as suspicious items / mock weapons
             const suspiciousItems = filtered.filter(p => ['scissors', 'knife', 'cell phone', 'umbrella'].includes(p.class));
 
             const crowdCountVal = persons.length;
             let fightProbVal = 0;
 
-            // Fight prediction calculation based on physical proximity of bounding boxes
             if (persons.length >= 2) {
               let minDistance = Infinity;
               for (let i = 0; i < persons.length; i++) {
@@ -104,7 +114,6 @@ export function AIDetection() {
                   if (dist < minDistance) minDistance = dist;
                 }
               }
-              // Overlapping/touching boxes imply aggression
               if (minDistance < 250) {
                 fightProbVal = Math.min(Math.floor(65 + (250 - minDistance) * 0.15), 98);
               } else {
@@ -174,20 +183,17 @@ export function AIDetection() {
       const drawWidth = width * scaleX;
       const drawHeight = height * scaleY;
 
-      // Color scheme based on classification
-      let strokeColor = '#3b82f6'; // vehicle / general
+      let strokeColor = '#3b82f6';
       if (obj.class === 'person') {
-        strokeColor = '#10b981'; // person
+        strokeColor = '#10b981';
       } else if (['scissors', 'knife', 'cell phone', 'umbrella'].includes(obj.class)) {
-        strokeColor = '#ef4444'; // threat
+        strokeColor = '#ef4444';
       }
 
-      // Bounding Box
       ctx.strokeStyle = strokeColor;
       ctx.lineWidth = 2.5;
       ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
 
-      // Box corner design accent
       ctx.fillStyle = strokeColor;
       const markerSize = 6;
       ctx.fillRect(drawX - 1, drawY - 1, markerSize, markerSize);
@@ -195,7 +201,6 @@ export function AIDetection() {
       ctx.fillRect(drawX - 1, drawY + drawHeight - markerSize + 1, markerSize, markerSize);
       ctx.fillRect(drawX + drawWidth - markerSize + 1, drawY + drawHeight - markerSize + 1, markerSize, markerSize);
 
-      // Label block
       const scorePercentage = Math.round(obj.score * 100);
       const labelText = `${obj.class.toUpperCase()} [${scorePercentage}%]`;
       ctx.font = 'bold 9px monospace';
@@ -203,7 +208,6 @@ export function AIDetection() {
       
       ctx.fillRect(drawX - 1.2, drawY - 16, textWidth + 8, 16);
 
-      // Label text
       ctx.fillStyle = '#000000';
       ctx.fillText(labelText, drawX + 3, drawY - 5);
     });
@@ -226,43 +230,80 @@ export function AIDetection() {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%', paddingBottom: '24px' }}>
+      
+      {/* Title & Controls */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ margin: 0 }}>AI Tactical Detection</h2>
+          <h2 style={{ margin: 0, color: 'var(--text-primary)' }}>AI Tactical Detection</h2>
           <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.875rem' }}>Neural Threat Recognition Suite</p>
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(255,255,255,0.03)', padding: '4px 8px', borderRadius: '12px', border: '1px solid var(--glass-border)' }}>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+          
+          {/* Dropdown Styled Neumorphically */}
+          <div 
+            className="nm-flat" 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '10px', 
+              padding: '6px 14px', 
+              borderRadius: '12px',
+              height: '42px'
+            }}
+          >
             <Camera size={16} color="var(--text-muted)" />
             <select 
               value={selectedDroneId} 
               onChange={(e) => { setSelectedDroneId(e.target.value); setCustomVideoUrl(null); }}
-              style={{ background: 'transparent', border: 'none', color: 'var(--text-primary)', fontSize: '0.875rem', outline: 'none', cursor: 'pointer', paddingRight: '8px' }}
+              style={{ 
+                background: 'transparent', 
+                border: 'none', 
+                color: 'var(--text-primary)', 
+                fontSize: '0.875rem', 
+                outline: 'none', 
+                cursor: 'pointer', 
+                paddingRight: '4px',
+                fontFamily: "'Satoshi', sans-serif",
+                fontWeight: 600
+              }}
             >
               {drones.map(d => (
-                <option key={d.id} value={d.id} style={{ background: 'var(--bg-secondary)' }}>{d.id} - {d.area}</option>
+                <option key={d.id} value={d.id} style={{ background: 'var(--bg-color)', color: 'var(--text-primary)' }}>{d.id} - {d.area}</option>
               ))}
             </select>
           </div>
           
-          <button 
-            className="btn-primary" 
-            style={{ fontSize: '0.75rem', padding: '8px 16px' }}
+          <NeumorphicButton 
+            style={{ height: '42px' }}
             onClick={() => fileInputRef.current.click()}
           >
-            <Upload size={14} /> Upload Video
-          </button>
+            <Upload size={16} />
+            <span>Upload Video</span>
+          </NeumorphicButton>
           <input type="file" ref={fileInputRef} hidden accept="video/*" onChange={handleFileUpload} />
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 350px', gap: '24px', flex: 1, minHeight: '500px' }}>
-        <div className="glass-panel" style={{ position: 'relative', overflow: 'hidden', background: '#000' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1.7fr 1.3fr', gap: '24px', flex: 1, minHeight: '520px' }}>
+        
+        {/* Main Feed Panel */}
+        <div 
+          className="nm-flat" 
+          style={{ 
+            position: 'relative', 
+            overflow: 'hidden', 
+            background: '#090a10', 
+            borderRadius: '16px',
+            boxShadow: '-6px -6px 12px var(--highlight-color), 6px 6px 12px var(--shadow-color)',
+            padding: '16px'
+          }}
+        >
+          <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', borderRadius: '12px' }}>
             <video 
               key={activeVideoUrl}
               ref={videoRef}
               autoPlay loop muted playsInline 
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.6 }}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.55 }}
               src={activeVideoUrl} 
             />
 
@@ -273,73 +314,96 @@ export function AIDetection() {
             />
 
             {isModelLoading && (
-              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 50, gap: '16px' }}>
-                <Loader2 className="animate-spin" size={36} color="#3b82f6" />
-                <div style={{ fontSize: '0.8rem', color: '#3b82f6', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.15em' }}>LOADING PRETRAINED TACTICAL NEURAL WEIGHTS...</div>
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(9,10,16,0.92)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 50, gap: '16px' }}>
+                <Loader2 className="animate-spin" size={36} color="var(--accent-primary)" />
+                <div style={{ fontSize: '10px', color: 'var(--accent-primary)', fontWeight: 700, fontFamily: 'monospace', letterSpacing: '0.15em' }}>LOADING TACTICAL NEURAL WEIGHTS...</div>
               </div>
             )}
 
             {activeAlert && (
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(239, 68, 68, 0.1)', border: '4px solid #ef4444', animation: 'textBlink 0.5s infinite', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
-                    <div style={{ background: '#ef4444', color: '#fff', padding: '20px 40px', borderRadius: '4px', textAlign: 'center' }}>
-                        <AlertTriangle size={48} style={{ marginBottom: '12px' }} />
-                        <h2 style={{ color: '#fff', letterSpacing: '0.2em' }}>{activeAlert}</h2>
-                    </div>
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(239, 68, 68, 0.12)', border: '4px solid var(--status-danger)', animation: 'textBlink 0.5s infinite', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100 }}>
+                <div className="nm-flat" style={{ padding: '24px 40px', borderRadius: '12px', textAlign: 'center', color: 'var(--status-danger)', boxShadow: '0 10px 30px rgba(239, 68, 68, 0.2)' }}>
+                  <AlertTriangle size={48} style={{ marginBottom: '12px', color: 'var(--status-danger)' }} />
+                  <h2 style={{ color: 'var(--status-danger)', letterSpacing: '0.15em', margin: 0 }}>{activeAlert}</h2>
                 </div>
+              </div>
             )}
 
-            <div style={{ position: 'absolute', top: 24, left: 24, zIndex: 20 }}>
-                <div style={{ fontSize: '10px', color: '#10b981', fontWeight: 800 }}>SOURCE: {customVideoUrl ? 'LOCAL_DISK_UPLINK' : `STREAM_${selectedDroneId}`}</div>
-                <div style={{ fontSize: '10px', color: 'rgba(255,255,255,0.4)', marginTop: '4px' }}>PROCESSING: COCO_SSD_LITE</div>
+            <div style={{ position: 'absolute', top: 16, left: 16, zIndex: 20, background: 'rgba(30,32,48,0.85)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <div style={{ fontSize: '10px', color: 'var(--status-success)', fontWeight: 800 }}>SOURCE: {customVideoUrl ? 'LOCAL_DISK_UPLINK' : `STREAM_${selectedDroneId}`}</div>
+              <div style={{ fontSize: '9px', color: 'var(--text-muted)', marginTop: '2px' }}>ENGINE: COCO_SSD_MOBILENET_V2</div>
             </div>
 
-            <div style={{ position: 'absolute', bottom: 24, right: 24, width: '180px', height: '100px', padding: '12px', background: 'rgba(0,0,0,0.85)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', zIndex: 20 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData}>
-                        <Bar dataKey="val">
-                            {chartData.map((entry, index) => (
-                                <Cell key={index} fill={entry.val > 75 ? '#ef4444' : '#10b981'} />
-                            ))}
-                        </Bar>
-                    </BarChart>
-                </ResponsiveContainer>
+            {/* Neural activity bar preview inside feed */}
+            <div style={{ position: 'absolute', bottom: 16, right: 16, width: '180px', height: '80px', padding: '10px', background: 'rgba(30,32,48,0.85)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', zIndex: 20 }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                  <Bar dataKey="val">
+                    {chartData.map((entry, index) => (
+                      <Cell key={index} fill={entry.val > 75 ? 'var(--status-danger)' : 'var(--status-success)'} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
+          </div>
         </div>
 
+        {/* Metrics Grid and Engine Log */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <DetectionMetric label="Fight Probability" value={detectionData.fightProb} color="#f59e0b" icon={Swords} />
-            <DetectionMetric label="Person Density" value={detectionData.crowdCount} color="#3b82f6" icon={Users} />
-            <DetectionMetric label="Threat Level" value={activeAlert ? "CRITICAL" : "NORMAL"} color={activeAlert ? "#ef4444" : "#10b981"} icon={ShieldAlert} />
+          
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+            <DetectionMetric label="Fight Prob" value={detectionData.fightProb} color="var(--status-warning)" icon={Swords} />
+            <DetectionMetric label="Person Density" value={detectionData.crowdCount} color="var(--accent-primary)" icon={Users} />
+          </div>
+
+          <div className="nm-flat" style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <h3 style={{ margin: 0, fontSize: '1.125rem', display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-primary)' }}>
+              <Activity size={18} color="var(--accent-secondary)" />
+              <span>Intelligence Feed Log</span>
+            </h3>
             
-            <div className="glass-panel" style={{ padding: '24px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <h3 style={{ margin: '0 0 16px 0', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Activity size={18} color="var(--accent-secondary)" /> Intelligence Log
-                </h3>
-                <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <div style={{ fontSize: '0.75rem', padding: '8px', borderLeft: '2px solid #3b82f6', background: 'rgba(59,130,246,0.05)' }}>
-                        <div style={{ color: 'var(--text-muted)', marginBottom: '4px' }}>SYNC_STATUS</div>
-                        <div style={{ color: 'var(--text-primary)' }}>Neural weights balanced. Analyzing {customVideoUrl ? 'Uploaded Sample' : selectedDroneId}.</div>
-                    </div>
-                    {isModelLoading && (
-                      <div style={{ fontSize: '0.75rem', padding: '8px', borderLeft: '2px solid #f59e0b', background: 'rgba(245,158,11,0.05)' }}>
-                          <div style={{ color: '#f59e0b', fontWeight: 700 }}>NEURAL_LOAD</div>
-                          <div style={{ color: 'var(--text-primary)' }}>Downloading COCO-SSD pretrained models (lite weight)...</div>
-                      </div>
-                    )}
-                    {!isModelLoading && (
-                      <div style={{ fontSize: '0.75rem', padding: '8px', borderLeft: '2px solid #10b981', background: 'rgba(16,185,129,0.05)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                          <div style={{ color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}><ShieldCheck size={12} /> ENGINE_READY</div>
-                          <div style={{ color: 'var(--text-primary)' }}>Pretrained COCO SSD detector listening on feed stream.</div>
-                      </div>
-                    )}
-                    {activeAlert && (
-                      <div style={{ fontSize: '0.75rem', padding: '8px', borderLeft: '2px solid #ef4444', background: 'rgba(239,68,68,0.1)', animation: 'textBlink 0.5s infinite' }}>
-                          <div style={{ color: '#ef4444', fontWeight: 700 }}>AI_ALERT_CRITICAL</div>
-                          <div style={{ color: '#fff' }}>Threat recognized: {activeAlert}</div>
-                      </div>
-                    )}
+            <div 
+              className="nm-inset" 
+              style={{ 
+                flex: 1, 
+                borderRadius: '12px', 
+                padding: '16px', 
+                fontFamily: 'monospace', 
+                fontSize: '11px',
+                color: 'var(--text-primary)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '10px',
+                overflowY: 'auto'
+              }}
+            >
+              <div style={{ display: 'flex', gap: '8px', borderLeft: '2px solid var(--accent-primary)', paddingLeft: '8px' }}>
+                <span style={{ color: 'var(--text-muted)' }}>[SYS]</span>
+                <span>Neural weights balanced. Analyzing {customVideoUrl ? 'Uploaded Sample' : selectedDroneId}.</span>
+              </div>
+              
+              {isModelLoading ? (
+                <div style={{ display: 'flex', gap: '8px', borderLeft: '2px solid var(--status-warning)', paddingLeft: '8px', color: 'var(--status-warning)' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>[SYS]</span>
+                  <span>Downloading COCO-SSD pretrained models (lite weight)...</span>
                 </div>
+              ) : (
+                <div style={{ display: 'flex', gap: '8px', borderLeft: '2px solid var(--status-success)', paddingLeft: '8px', color: 'var(--status-success)' }}>
+                  <span style={{ color: 'var(--text-muted)' }}>[SYS]</span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><ShieldCheck size={12} /> engine ready. listening on feed stream.</span>
+                </div>
+              )}
+
+              {activeAlert && (
+                <div className="blink-text" style={{ display: 'flex', gap: '8px', borderLeft: '2px solid var(--status-danger)', paddingLeft: '8px', color: 'var(--status-danger)', fontWeight: 700 }}>
+                  <span style={{ color: 'var(--text-muted)' }}>[ALERT]</span>
+                  <span>Threat recognized: {activeAlert}</span>
+                </div>
+              )}
             </div>
+          </div>
+          
         </div>
       </div>
     </div>

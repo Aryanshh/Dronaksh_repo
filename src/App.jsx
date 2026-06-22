@@ -9,6 +9,7 @@ import { Analytics } from './components/Analytics';
 import { SystemConfig } from './components/SystemConfig';
 import { FleetManagement } from './components/FleetManagement';
 import { LoginPage } from './components/LoginPage';
+import { LandingPage } from './components/LandingPage';
 import { AIDetection } from './components/AIDetection';
 import { useDrones } from './context/DroneContext';
 
@@ -20,7 +21,7 @@ function App() {
   if (isAuthScene) {
     return (
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
       </Routes>
     );
@@ -31,8 +32,30 @@ function App() {
       {/* Global Notifications */}
       <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: '12px', pointerEvents: 'none' }}>
         {toasts.map(t => (
-          <div key={t.id} className="slide-left glass-panel" style={{ width: '320px', border: `1px solid ${t.type === 'critical' ? 'rgba(239,68,68,0.4)' : t.type === 'warning' ? 'rgba(245,158,11,0.4)' : 'var(--glass-border)'}`, padding: '16px', display: 'flex', gap: '12px', pointerEvents: 'auto', background: 'var(--bg-glass)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: t.type === 'critical' ? 'rgba(239,68,68,0.1)' : t.type === 'warning' ? 'rgba(245,158,11,0.1)' : 'rgba(59,130,246,0.1)', color: t.type === 'critical' ? 'var(--status-danger)' : t.type === 'warning' ? 'var(--status-warning)' : 'var(--accent-primary)', width: '40px', height: '40px', borderRadius: '50%' }}>
+          <div 
+            key={t.id} 
+            className="slide-left nm-flat" 
+            style={{ 
+              width: '320px', 
+              padding: '16px', 
+              display: 'flex', 
+              gap: '12px', 
+              pointerEvents: 'auto',
+              borderLeft: `4px solid ${t.type === 'critical' ? 'var(--status-danger)' : t.type === 'warning' ? 'var(--status-warning)' : 'var(--status-success)'}`,
+              borderRadius: '12px'
+            }}
+          >
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              background: 'var(--bg-color)', 
+              boxShadow: 'inset -2px -2px 5px var(--highlight-color), inset 2px 2px 5px var(--shadow-color)',
+              color: t.type === 'critical' ? 'var(--status-danger)' : t.type === 'warning' ? 'var(--status-warning)' : 'var(--accent-primary)', 
+              width: '40px', 
+              height: '40px', 
+              borderRadius: '50%' 
+            }}>
               <t.icon size={20} />
             </div>
             <div style={{ flex: 1 }}>

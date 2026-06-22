@@ -14,32 +14,69 @@ const historicalData = [
 export function Analytics() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%', paddingBottom: '24px', overflowY: 'auto' }}>
-      <h2 style={{ margin: 0 }}>Analytics & Reporting</h2>
+      
+      {/* Title */}
+      <div>
+        <h2 style={{ margin: 0, color: 'var(--text-primary)' }}>Analytics & Reporting</h2>
+        <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.875rem' }}>Weekly system metrics, distance metrics, and alert triggers.</p>
+      </div>
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '24px' }}>
-        <div className="glass-panel interactive-card" style={{ padding: '24px', minHeight: '350px' }}>
-          <h3 style={{ margin: '0 0 20px 0', fontSize: '1.125rem' }}>Weekly Distance Covered (km)</h3>
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={historicalData}>
-              <XAxis dataKey="name" stroke="var(--text-muted)" tickLine={false} axisLine={false} />
-              <YAxis stroke="var(--text-muted)" tickLine={false} axisLine={false} />
-              <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ background: 'var(--bg-secondary)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} />
-              <Bar dataKey="dist" fill="var(--accent-primary)" radius={[4, 4, 0, 0]} barSize={40} />
-            </BarChart>
-          </ResponsiveContainer>
+        
+        {/* Distance covered card */}
+        <div className="nm-flat" style={{ padding: '24px', minHeight: '380px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <h3 style={{ margin: 0, fontSize: '1.125rem', color: 'var(--text-primary)' }}>Weekly Distance Covered (km)</h3>
+          <div style={{ flex: 1, width: '100%' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={historicalData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <XAxis dataKey="name" stroke="var(--text-muted)" tickLine={false} axisLine={false} style={{ fontSize: '11px' }} />
+                <YAxis stroke="var(--text-muted)" tickLine={false} axisLine={false} style={{ fontSize: '11px' }} />
+                <Tooltip 
+                  cursor={{ fill: 'rgba(255,255,255,0.03)' }} 
+                  contentStyle={{ 
+                    background: 'var(--bg-color)', 
+                    border: 'none', 
+                    borderRadius: '8px', 
+                    boxShadow: '-2px -2px 6px var(--highlight-color), 2px 2px 6px var(--shadow-color)',
+                    color: 'var(--text-primary)' 
+                  }} 
+                />
+                <Bar dataKey="dist" fill="var(--accent-primary)" radius={[6, 6, 0, 0]} barSize={36} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-        <div className="glass-panel interactive-card" style={{ padding: '24px', minHeight: '350px' }}>
-          <h3 style={{ margin: '0 0 20px 0', fontSize: '1.125rem' }}>Security Alerts Triggered</h3>
-          <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={historicalData}>
-              <XAxis dataKey="name" stroke="var(--text-muted)" tickLine={false} axisLine={false} />
-              <YAxis stroke="var(--text-muted)" tickLine={false} axisLine={false} />
-              <Tooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ background: 'var(--bg-secondary)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }} />
-              <Line type="monotone" dataKey="alerts" stroke="var(--status-warning)" strokeWidth={3} dot={{ strokeWidth: 2, r: 4, fill: 'var(--bg-secondary)' }} />
-            </LineChart>
-          </ResponsiveContainer>
+        {/* Security alerts card */}
+        <div className="nm-flat" style={{ padding: '24px', minHeight: '380px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <h3 style={{ margin: 0, fontSize: '1.125rem', color: 'var(--text-primary)' }}>Security Alerts Triggered</h3>
+          <div style={{ flex: 1, width: '100%' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={historicalData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <XAxis dataKey="name" stroke="var(--text-muted)" tickLine={false} axisLine={false} style={{ fontSize: '11px' }} />
+                <YAxis stroke="var(--text-muted)" tickLine={false} axisLine={false} style={{ fontSize: '11px' }} />
+                <Tooltip 
+                  contentStyle={{ 
+                    background: 'var(--bg-color)', 
+                    border: 'none', 
+                    borderRadius: '8px', 
+                    boxShadow: '-2px -2px 6px var(--highlight-color), 2px 2px 6px var(--shadow-color)',
+                    color: 'var(--text-primary)' 
+                  }} 
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="alerts" 
+                  stroke="var(--status-warning)" 
+                  strokeWidth={3} 
+                  dot={{ stroke: 'var(--status-warning)', strokeWidth: 2, r: 5, fill: 'var(--bg-color)' }} 
+                  activeDot={{ r: 7 }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </div>
+
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Plane, Lock, User, Mail, ArrowLeft, ShieldCheck, AlertCircle } from 'lucide-react';
+import { NeumorphicButton } from './NeumorphicButton';
 
 const MatrixDigitalRain = () => {
   const canvasRef = useRef(null);
@@ -22,9 +23,12 @@ const MatrixDigitalRain = () => {
     const drops = Array(columns).fill(1);
 
     const draw = () => {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
+      // Determine theme background color for clearRect fill
+      const theme = document.documentElement.getAttribute('data-theme') || 'dark';
+      ctx.fillStyle = theme === 'light' ? 'rgba(224, 229, 236, 0.08)' : 'rgba(30, 32, 48, 0.08)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#3b82f6';
+      
+      ctx.fillStyle = theme === 'light' ? '#4f46e5' : '#6366f1';
       ctx.font = fontSize + 'px monospace';
 
       for (let i = 0; i < drops.length; i++) {
@@ -46,12 +50,12 @@ const MatrixDigitalRain = () => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, opacity: 0.8, pointerEvents: 'none' }} />;
+  return <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, opacity: 0.25, pointerEvents: 'none' }} />;
 };
 
 export function LoginPage() {
   const navigate = useNavigate();
-  const [view, setView] = useState('login'); // 'login' | 'forgot' | 'reset-success'
+  const [view, setView] = useState('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
@@ -64,7 +68,7 @@ export function LoginPage() {
     setError('');
     
     if (!username || !password) {
-      setError('MISSION ERROR: Terminal access requires full credentials.');
+      setError('MISSION ERROR: Terminal access requires credentials.');
       return;
     }
 
@@ -77,7 +81,7 @@ export function LoginPage() {
   const handleResetRequest = (e) => {
     e.preventDefault();
     if (!email) {
-      setError('ENTRY ERROR: Email/Operator ID required for recovery.');
+      setError('ENTRY ERROR: Email required for recovery.');
       return;
     }
     setLoading(true);
@@ -88,110 +92,195 @@ export function LoginPage() {
   };
 
   return (
-    <div style={{ position: 'absolute', inset: 0, width: '100vw', height: '100vh', background: '#000', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+    <div style={{ position: 'absolute', inset: 0, width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: 'var(--bg-color)' }}>
       <MatrixDigitalRain />
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 50% 50%, transparent 20%, #000 100%)', pointerEvents: 'none' }} />
+      
+      {/* Decorative gradient radial overlay */}
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 50% 50%, transparent 30%, var(--bg-color) 100%)', pointerEvents: 'none' }} />
 
-      <div className="glass-panel" style={{ width: '100%', maxWidth: '420px', padding: '40px', position: 'relative', zIndex: 10, display: 'flex', flexDirection: 'column', gap: '24px', border: '1px solid rgba(59, 130, 246, 0.2)', boxShadow: '0 0 40px rgba(59, 130, 246, 0.1)' }}>
-        
+      {/* Main card */}
+      <div 
+        className="nm-flat" 
+        style={{ 
+          width: '100%', 
+          maxWidth: '430px', 
+          padding: '40px', 
+          position: 'relative', 
+          zIndex: 10, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '24px',
+          boxShadow: '-8px -8px 20px var(--highlight-color), 8px 8px 20px var(--shadow-color)',
+          borderRadius: '24px'
+        }}
+      >
         <div style={{ textAlign: 'center' }}>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
-            <div style={{ padding: '16px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '50%', border: '1px solid rgba(59, 130, 246, 0.3)', boxShadow: '0 0 30px rgba(59, 130, 246, 0.4)' }}>
-              <Plane size={32} color="#3b82f6" />
+            <div 
+              className="nm-inset animate-float-bob" 
+              style={{ 
+                padding: '16px', 
+                borderRadius: '50%', 
+                display: 'inline-flex',
+                boxShadow: 'inset -3px -3px 6px var(--highlight-color), inset 3px 3px 6px var(--shadow-color)'
+              }}
+            >
+              <Plane size={32} color="var(--accent-primary)" />
             </div>
           </div>
-          <h2 style={{ margin: 0, fontSize: '2rem', letterSpacing: '0.05em', color: '#fff', textShadow: '0 0 10px rgba(59, 130, 246, 0.5)' }}>DRONAKSH</h2>
-          <p style={{ color: 'rgba(255,255,255,0.6)', margin: '8px 0 0 0', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.75rem' }}>Tactical Command Interface</p>
+          <h2 style={{ margin: 0, fontSize: '2rem', letterSpacing: '0.05em', color: 'var(--text-primary)', fontFamily: "'General Sans', sans-serif" }}>DRONAKSH</h2>
+          <p style={{ color: 'var(--text-muted)', margin: '6px 0 0 0', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '0.75rem', fontWeight: 700 }}>Tactical Command Interface</p>
         </div>
 
         {error && (
-          <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', color: '#ef4444', padding: '12px', borderRadius: '4px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <AlertCircle size={14} /> {error}
+          <div className="nm-inset" style={{ padding: '12px 16px', borderRadius: '8px', color: 'var(--status-danger)', fontSize: '12px', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: 'inset -2px -2px 5px var(--highlight-color), inset 2px 2px 5px var(--shadow-color)' }}>
+            <AlertCircle size={16} /> <span>{error}</span>
           </div>
         )}
 
-        <div style={{ background: 'rgba(59, 130, 246, 0.05)', border: '1px dashed rgba(59, 130, 246, 0.3)', padding: '12px', borderRadius: '6px', fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.6)', textAlign: 'center', fontFamily: 'monospace' }}>
-          Uplink Credentials: <span style={{ color: '#3b82f6', fontWeight: 700 }}>operator01</span> / <span style={{ color: '#3b82f6', fontWeight: 700 }}>password123</span>
+        <div className="nm-inset" style={{ padding: '12px 16px', borderRadius: '12px', fontSize: '11px', color: 'var(--text-secondary)', textAlign: 'center', fontFamily: 'monospace', boxShadow: 'inset -2px -2px 5px var(--highlight-color), inset 2px 2px 5px var(--shadow-color)' }}>
+          Uplink Credentials: <span style={{ color: 'var(--accent-primary)', fontWeight: 700 }}>operator01</span> / <span style={{ color: 'var(--accent-primary)', fontWeight: 700 }}>password123</span>
         </div>
 
         {view === 'login' && (
           <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <label style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Operator ID</label>
-              <div style={{ position: 'relative' }}>
-                <User size={18} color="rgba(255,255,255,0.4)" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+              <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Operator ID</label>
+              <div 
+                className="nm-inset" 
+                style={{ 
+                  position: 'relative',
+                  borderRadius: '10px',
+                  boxShadow: 'inset -2px -2px 5px var(--highlight-color), inset 2px 2px 5px var(--shadow-color)',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                <User size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '16px' }} />
                 <input 
                   type="text" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="operator01"
-                  style={{ width: '100%', padding: '12px 16px 12px 44px', background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(59, 130, 246, 0.2)', color: '#fff', borderRadius: '8px', outline: 'none', transition: 'border-color 0.2s', fontSize: '0.875rem' }}
+                  style={{ 
+                    width: '100%', 
+                    padding: '12px 16px 12px 46px', 
+                    background: 'transparent', 
+                    border: 'none', 
+                    color: 'var(--text-primary)', 
+                    borderRadius: '10px', 
+                    outline: 'none', 
+                    fontSize: '14px',
+                    fontFamily: "'Satoshi', sans-serif"
+                  }}
                 />
               </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <label style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.7)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Clearance Key</label>
-              <div style={{ position: 'relative' }}>
-                <Lock size={18} color="rgba(255,255,255,0.4)" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+              <label style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Clearance Key</label>
+              <div 
+                className="nm-inset" 
+                style={{ 
+                  position: 'relative',
+                  borderRadius: '10px',
+                  boxShadow: 'inset -2px -2px 5px var(--highlight-color), inset 2px 2px 5px var(--shadow-color)',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                <Lock size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '16px' }} />
                 <input 
                   type="password" 
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="password123"
-                  style={{ width: '100%', padding: '12px 16px 12px 44px', background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(59, 130, 246, 0.2)', color: '#fff', borderRadius: '8px', outline: 'none', transition: 'border-color 0.2s', fontSize: '0.875rem' }}
+                  style={{ 
+                    width: '100%', 
+                    padding: '12px 16px 12px 46px', 
+                    background: 'transparent', 
+                    border: 'none', 
+                    color: 'var(--text-primary)', 
+                    borderRadius: '10px', 
+                    outline: 'none', 
+                    fontSize: '14px',
+                    fontFamily: "'Satoshi', sans-serif"
+                  }}
                 />
               </div>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem' }}>
-                <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} style={{ opacity: 0.3 }} />
-                Keep Session Active
+              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+                <input type="checkbox" checked={rememberMe} onChange={() => setRememberMe(!rememberMe)} style={{ cursor: 'pointer' }} />
+                <span>Keep Session Active</span>
               </label>
               <button 
                 type="button"
                 onClick={() => { setView('forgot'); setError(''); }}
-                style={{ background: 'none', border: 'none', color: '#3b82f6', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}
+                style={{ background: 'none', border: 'none', color: 'var(--accent-primary)', fontSize: '0.8rem', cursor: 'pointer', fontWeight: 700 }}
               >
                 Access Recovery?
               </button>
             </div>
 
-            <button type="submit" disabled={loading} className="menu-btn" style={{ marginTop: '8px', padding: '14px', background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', border: '1px solid rgba(59, 130, 246, 0.4)', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 800, cursor: loading ? 'not-allowed' : 'pointer', letterSpacing: '0.1em' }}>
+            <NeumorphicButton 
+              type="submit" 
+              disabled={loading} 
+              style={{ marginTop: '8px', height: '48px' }}
+            >
               {loading ? <span className="blink-text">VALIDATING CREDENTIALS...</span> : 'INITIATE TERMINAL ACCESS'}
-            </button>
+            </NeumorphicButton>
           </form>
         )}
 
         {view === 'forgot' && (
           <form onSubmit={handleResetRequest} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <h3 style={{ margin: 0, fontSize: '1rem', color: '#fff' }}>Account Recovery</h3>
-              <p style={{ margin: 0, fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)' }}>Enter your registered Operator ID or Email linked to this terminal.</p>
+              <h3 style={{ margin: 0, fontSize: '1.125rem', color: 'var(--text-primary)' }}>Account Recovery</h3>
+              <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Enter your registered Email linked to this terminal.</p>
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ position: 'relative' }}>
-                <Mail size={18} color="rgba(255,255,255,0.4)" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+              <div 
+                className="nm-inset" 
+                style={{ 
+                  position: 'relative',
+                  borderRadius: '10px',
+                  boxShadow: 'inset -2px -2px 5px var(--highlight-color), inset 2px 2px 5px var(--shadow-color)',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                <Mail size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '16px' }} />
                 <input 
                   type="email" 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="operator@dronaksh.gov"
-                  style={{ width: '100%', padding: '12px 16px 12px 44px', background: 'rgba(0,0,0,0.6)', border: '1px solid rgba(59, 130, 246, 0.2)', color: '#fff', borderRadius: '8px', outline: 'none', fontSize: '0.875rem' }}
+                  style={{ 
+                    width: '100%', 
+                    padding: '12px 16px 12px 46px', 
+                    background: 'transparent', 
+                    border: 'none', 
+                    color: 'var(--text-primary)', 
+                    borderRadius: '10px', 
+                    outline: 'none', 
+                    fontSize: '14px',
+                    fontFamily: "'Satoshi', sans-serif"
+                  }}
                 />
               </div>
             </div>
 
-            <button type="submit" disabled={loading} className="menu-btn" style={{ padding: '14px', background: 'rgba(59, 130, 246, 0.15)', color: '#3b82f6', border: '1px solid rgba(59, 130, 246, 0.4)', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 800, cursor: loading ? 'not-allowed' : 'pointer' }}>
+            <NeumorphicButton type="submit" disabled={loading} style={{ height: '48px' }}>
               {loading ? 'SENDING RECOVERY ENCRYPTION...' : 'REQUEST OVERRIDE KEY'}
-            </button>
+            </NeumorphicButton>
 
             <button 
               type="button" 
               onClick={() => setView('login')}
-              style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.8rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: 600 }}
             >
               <ArrowLeft size={14} /> Back to Login
             </button>
@@ -199,21 +288,20 @@ export function LoginPage() {
         )}
 
         {view === 'reset-success' && (
-          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px 0' }}>
+          <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '16px', padding: '10px 0' }}>
             <div style={{ display: 'flex', justifyContent: 'center' }}>
-              <ShieldCheck size={48} color="#10b981" />
+              <ShieldCheck size={48} color="var(--status-success)" />
             </div>
             <div>
-              <h3 style={{ margin: 0, color: '#fff' }}>Recovery Link Sent</h3>
-              <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '8px' }}>Verification key has been dispatched to your encrypted uplink.</p>
+              <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>Recovery Link Sent</h3>
+              <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', marginTop: '8px' }}>Verification key has been dispatched to your encrypted uplink.</p>
             </div>
-            <button 
+            <NeumorphicButton 
               onClick={() => setView('login')}
-              className="btn-primary"
-              style={{ marginTop: '12px', padding: '12px' }}
+              style={{ marginTop: '12px', height: '44px' }}
             >
               Return to Login
-            </button>
+            </NeumorphicButton>
           </div>
         )}
       </div>

@@ -104,16 +104,37 @@ export function FleetMap() {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', height: '100%', paddingBottom: '24px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ margin: 0 }}>Active Tactical Map</h2>
+          <h2 style={{ margin: 0, color: 'var(--text-primary)' }}>Active Tactical Map</h2>
           <p style={{ margin: 0, color: 'var(--text-muted)', fontSize: '0.875rem' }}>High-Precision GPS Monitoring | {activeDrones.length} Units Airborne</p>
         </div>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center', background: 'rgba(16, 185, 129, 0.1)', padding: '6px 12px', borderRadius: '8px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-          <Target size={14} color="#10b981" />
-          <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 600 }}>PRECISION TRACKING ACTIVE [24-SATELLITE LOCK]</span>
+        <div 
+          className="nm-inset" 
+          style={{ 
+            display: 'flex', 
+            gap: '8px', 
+            alignItems: 'center', 
+            padding: '8px 16px', 
+            borderRadius: '10px',
+            boxShadow: 'inset -2px -2px 5px var(--highlight-color), inset 2px 2px 5px var(--shadow-color)' 
+          }}
+        >
+          <Target size={14} color="var(--status-success)" />
+          <span style={{ fontSize: '0.75rem', color: 'var(--status-success)', fontWeight: 700 }}>24-SATELLITE LOCK PRECISION ACTIVE</span>
         </div>
       </div>
 
-      <div className="glass-panel" style={{ flex: 1, position: 'relative', overflow: 'hidden', minHeight: '650px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+      <div 
+        className="nm-flat" 
+        style={{ 
+          flex: 1, 
+          position: 'relative', 
+          overflow: 'hidden', 
+          minHeight: '650px', 
+          borderRadius: '24px', 
+          padding: '12px',
+          boxShadow: '-6px -6px 12px var(--highlight-color), 6px 6px 12px var(--shadow-color)'
+        }}
+      >
         <MapContainer 
           center={userCenter} 
           zoom={15} 
