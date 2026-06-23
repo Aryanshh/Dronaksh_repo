@@ -28,11 +28,23 @@ const alertTemplates = [
 export function DroneProvider({ children }) {
   const [drones, setDrones] = useState(initialDrones);
   const [toasts, setToasts] = useState([]);
+  const [connectionMode, setConnectionMode] = useState(null);
+  const [connectionDetails, setConnectionDetails] = useState(null);
   const [logs, setLogs] = useState([
     { id: 1, time: '20:42', droneId: 'DRN-04', type: 'critical', text: 'Intruder detected in Sector 4', icon: ShieldAlert },
     { id: 2, time: '20:38', droneId: 'DRN-02', type: 'info', text: 'Returning to base (low comms)', icon: Info },
     { id: 3, time: '20:15', droneId: 'DRN-01', type: 'success', text: 'Area scan completed', icon: Info }
   ]);
+
+  const setConnection = (mode, details) => {
+    setConnectionMode(mode);
+    setConnectionDetails(details);
+  };
+
+  const disconnectUplink = () => {
+    setConnectionMode(null);
+    setConnectionDetails(null);
+  };
 
   // Movement simulation
   useEffect(() => {
@@ -113,6 +125,10 @@ export function DroneProvider({ children }) {
       drones, 
       toasts, 
       logs, 
+      connectionMode,
+      connectionDetails,
+      setConnection,
+      disconnectUplink,
       handleLaunch, 
       handleLand, 
       handleRecallAll 

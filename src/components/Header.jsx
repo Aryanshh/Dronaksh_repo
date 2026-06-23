@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { Search, Bell, User, LogOut, Settings as SettingsIcon, Sun, Moon, ChevronRight } from 'lucide-react';
+import { Search, Bell, User, LogOut, Settings as SettingsIcon, Sun, Moon, ChevronRight, Unlink } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useDrones } from '../context/DroneContext';
 
 export function Header() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { connectionMode, connectionDetails, disconnectUplink } = useDrones();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [hoveredBreadcrumb, setHoveredBreadcrumb] = useState(false);
@@ -106,6 +108,60 @@ export function Header() {
 
       {/* Right side: Theme toggle, Notifications and Profile */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        
+        {/* Connection Status Badge & Eject/Disconnect Control */}
+        {connectionMode && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div 
+              className="nm-inset" 
+              style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '8px', 
+                padding: '6px 14px', 
+                borderRadius: '10px',
+                fontSize: '11px',
+                fontWeight: 700,
+                color: connectionMode === 'demo' ? 'var(--status-warning)' : 'var(--status-success)',
+                boxShadow: 'inset -2px -2px 5px var(--highlight-color), inset 2px 2px 5px var(--shadow-color)'
+              }}
+            >
+              <div 
+                className="animate-pulse-glow"
+                style={{ 
+                  width: '6px', 
+                  height: '6px', 
+                  borderRadius: '50%', 
+                  background: connectionMode === 'demo' ? 'var(--status-warning)' : 'var(--status-success)' 
+                }} 
+              />
+              <span>
+                {connectionMode === 'demo' && 'DEMO UPLINK'}
+                {connectionMode === 'uart' && `UART: ${connectionDetails?.port}`}
+                {connectionMode === 'wifi' && `WIFI: ${connectionDetails?.ip}`}
+              </span>
+            </div>
+            
+            <button 
+              onClick={disconnectUplink}
+              className="nm-button"
+              style={{
+                width: '40px',
+                height: '40px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 0,
+                color: 'var(--status-danger)',
+                boxShadow: '-3px -3px 8px var(--highlight-color), 3px 3px 8px var(--shadow-color)'
+              }}
+              title="Disconnect Active Uplink"
+            >
+              <Unlink size={16} />
+            </button>
+          </div>
+        )}
         
         {/* Circular Theme Toggle Button */}
         <button 

@@ -10,13 +10,14 @@ import { SystemConfig } from './components/SystemConfig';
 import { FleetManagement } from './components/FleetManagement';
 import { LoginPage } from './components/LoginPage';
 import { LandingPage } from './components/LandingPage';
+import { ConnectionPage } from './components/ConnectionPage';
 import { AIDetection } from './components/AIDetection';
 import { useDrones } from './context/DroneContext';
 
 function App() {
   const location = useLocation();
   const isAuthScene = ['/', '/login'].includes(location.pathname);
-  const { toasts } = useDrones();
+  const { toasts, connectionMode } = useDrones();
 
   if (isAuthScene) {
     return (
@@ -25,6 +26,10 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
       </Routes>
     );
+  }
+
+  if (!connectionMode) {
+    return <ConnectionPage />;
   }
 
   return (
