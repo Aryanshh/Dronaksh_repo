@@ -9,20 +9,34 @@ import { Analytics } from './components/Analytics';
 import { SystemConfig } from './components/SystemConfig';
 import { FleetManagement } from './components/FleetManagement';
 import { LoginPage } from './components/LoginPage';
-import { LandingPage } from './components/LandingPage';
+import { LoadingScreen } from './components/LoadingScreen';
 import { ConnectionPage } from './components/ConnectionPage';
 import { AIDetection } from './components/AIDetection';
 import { useDrones } from './context/DroneContext';
 
 function App() {
   const location = useLocation();
+  const [hasBooted, setHasBooted] = useState(() => {
+    return sessionStorage.getItem('dronaksh_booted') === 'true';
+  });
   const isAuthScene = ['/', '/login'].includes(location.pathname);
   const { toasts, connectionMode } = useDrones();
+
+  if (!hasBooted) {
+    return (
+      <LoadingScreen 
+        onComplete={() => {
+          sessionStorage.setItem('dronaksh_booted', 'true');
+          setHasBooted(true);
+        }} 
+      />
+    );
+  }
 
   if (isAuthScene) {
     return (
       <Routes>
-        <Route path="/" element={<LandingPage />} />
+        <Route path="/" element={<LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
       </Routes>
     );
