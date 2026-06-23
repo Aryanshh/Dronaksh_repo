@@ -135,7 +135,7 @@ export function ConnectionPage() {
                 className={index === logs.length - 1 ? "cursor-blink" : ""}
                 style={{ 
                   animation: 'terminalLineIn 0.2s ease-out forwards',
-                  color: index === steps.length - 1 ? 'var(--status-success)' : 'var(--text-secondary)'
+                  color: index === 4 ? 'var(--status-success)' : 'var(--text-secondary)'
                 }}
               >
                 {log}
